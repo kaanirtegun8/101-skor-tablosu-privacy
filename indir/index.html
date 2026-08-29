@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#073d2a">
+    <meta name="robots" content="noindex">
+    <meta
+      name="description"
+      content="101 Skor Tablosu uygulamasını cihazınıza uygun mağazadan indirin."
+    >
+    <title>101 Skor Tablosu'nu İndir</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #041d16;
+        color: #f7f1dc;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background:
+          radial-gradient(circle at top, rgba(35, 137, 91, 0.34), transparent 42%),
+          #041d16;
+      }
+
+      main {
+        width: min(100%, 460px);
+        padding: 36px 28px;
+        text-align: center;
+        border: 1px solid rgba(232, 188, 72, 0.28);
+        border-radius: 28px;
+        background: rgba(7, 61, 42, 0.88);
+        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.38);
+      }
+
+      .mark {
+        display: inline-grid;
+        place-items: center;
+        width: 76px;
+        height: 76px;
+        margin-bottom: 18px;
+        border-radius: 22px;
+        background: linear-gradient(145deg, #f5d979, #c99220);
+        color: #073d2a;
+        font-size: 28px;
+        font-weight: 900;
+      }
+
+      h1 {
+        margin: 0 0 12px;
+        font-size: clamp(28px, 7vw, 38px);
+      }
+
+      p {
+        margin: 0;
+        color: #d4e5dc;
+        line-height: 1.6;
+      }
+
+      .buttons {
+        display: grid;
+        gap: 12px;
+        margin-top: 28px;
+      }
+
+      a {
+        display: block;
+        padding: 15px 18px;
+        border-radius: 14px;
+        background: #f0c653;
+        color: #12271f;
+        font-weight: 800;
+        text-decoration: none;
+      }
+
+      a.secondary {
+        border: 1px solid rgba(240, 198, 83, 0.46);
+        background: transparent;
+        color: #f7f1dc;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="mark" aria-hidden="true">101</div>
+      <h1>Doğru mağazaya yönlendiriliyorsunuz…</h1>
+      <p>
+        Yönlendirme başlamazsa cihazınıza uygun mağazayı aşağıdan seçebilirsiniz.
+      </p>
+      <div class="buttons">
+        <a id="ios-link" href="https://apps.apple.com/tr/app/id6738851862">
+          App Store'dan İndir
+        </a>
+        <a
+          id="android-link"
+          class="secondary"
+          href="https://play.google.com/store/apps/details?id=com.kaanirtegun8.okeyscoreboard&amp;referrer=utm_source%3Dmagfi%26utm_medium%3Dtelegram_ads%26utm_campaign%3D101_skor_tablosu"
+        >
+          Google Play'den İndir
+        </a>
+      </div>
+    </main>
+
+    <script>
+      (() => {
+        const userAgent = navigator.userAgent || "";
+        const isAndroid = /Android/i.test(userAgent);
+        const isIOS =
+          /iPad|iPhone|iPod/i.test(userAgent) ||
+          (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+        const iosUrl = document.getElementById("ios-link").href;
+        const androidUrl = document.getElementById("android-link").href;
+
+        if (isIOS) window.location.replace(iosUrl);
+        if (isAndroid) window.location.replace(androidUrl);
+      })();
+    </script>
+  </body>
+</html>
