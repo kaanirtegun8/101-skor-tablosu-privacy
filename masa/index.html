@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#04301b">
+    <meta name="robots" content="noindex">
+    <meta name="description" content="101 Skor Tablosu ile tutulan masanın skorunu canlı izleyin.">
+    <title>Canlı Masa · 101 Skor Tablosu</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        --felt: #04301b;
+        --gold: #e2c15c;
+        --gold-bright: #f3ca52;
+        --gold-soft: rgba(226, 193, 92, 0.16);
+        --text: #f4f1e8;
+        --muted: rgba(244, 241, 232, 0.66);
+        --faint: rgba(244, 241, 232, 0.4);
+        --fill: rgba(255, 255, 255, 0.07);
+        --hairline: rgba(255, 255, 255, 0.14);
+        --danger: #ef5b4f;
+        --success: #4cc38a;
+        background: var(--felt);
+        color: var(--text);
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        padding: 20px 16px calc(32px + env(safe-area-inset-bottom));
+        background:
+          radial-gradient(circle at top, rgba(35, 137, 91, 0.34), transparent 45%),
+          var(--felt);
+      }
+
+      main { width: min(100%, 560px); margin: 0 auto; display: grid; gap: 14px; }
+
+      header { display: flex; align-items: center; gap: 12px; }
+      .mark {
+        display: grid; place-items: center; flex: none;
+        width: 44px; height: 44px; border-radius: 13px;
+        background: linear-gradient(145deg, #f5d979, #c99220);
+        color: #073d2a; font-weight: 900; font-size: 16px;
+      }
+      header h1 { margin: 0; font-size: 20px; }
+      header p { margin: 2px 0 0; color: var(--muted); font-size: 14px; }
+
+      .status { display: flex; align-items: center; justify-content: space-between; }
+      .pill {
+        display: inline-flex; align-items: center; gap: 7px;
+        padding: 6px 12px; border-radius: 999px;
+        background: #d9362b; color: #fff; font-size: 13px; font-weight: 800; letter-spacing: .4px;
+      }
+      .pill.done { background: rgba(255, 255, 255, 0.13); }
+      .pill .dot { width: 8px; height: 8px; border-radius: 50%; background: #fff; animation: pulse 1.6s infinite; }
+      @keyframes pulse { 50% { opacity: .35; } }
+      .updated { color: var(--faint); font-size: 13px; }
+
+      .card {
+        border-radius: 20px; background: var(--fill);
+        border: 1px solid var(--hairline); overflow: hidden;
+      }
+
+      .rank { display: flex; align-items: center; gap: 12px; padding: 12px 14px; }
+      .rank.leader { background: var(--gold-soft); }
+      .rank .pos { width: 26px; text-align: center; color: var(--faint); font-weight: 800; }
+      .rank .name { flex: 1; min-width: 0; }
+      .rank .name strong { display: block; font-size: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .rank .name small { color: var(--muted); font-size: 12px; }
+      .rank .total { font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; }
+      .rank.leader .total { color: var(--gold-bright); }
+
+      .avatar {
+        display: inline-grid; place-items: center; flex: none;
+        border-radius: 50%; color: #fff; font-weight: 800; overflow: hidden;
+      }
+      .team { display: inline-flex; }
+      .team .avatar + .avatar { margin-left: -10px; box-shadow: 0 0 0 2px rgba(0, 0, 0, .25); }
+
+      table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+      th { padding: 10px 4px; border-bottom: 1px solid var(--hairline); }
+      td { padding: 10px 4px; text-align: center; font-size: 17px; font-weight: 700; }
+      tr:nth-child(even) td { background: rgba(255, 255, 255, .035); }
+      td.round, th.round { width: 40px; color: var(--faint); font-size: 13px; font-weight: 800; }
+      td.win { color: var(--success); }
+      td.bad { color: var(--danger); }
+
+      .message { padding: 36px 20px; text-align: center; color: var(--muted); line-height: 1.6; }
+
+      .cta { padding: 18px; display: grid; gap: 10px; text-align: center; }
+      .cta p { margin: 0; color: var(--muted); font-size: 14px; }
+      .cta a, form button {
+        display: block; padding: 14px 16px; border-radius: 14px; border: 0;
+        background: var(--gold); color: #12271f; font-weight: 800; font-size: 16px;
+        text-decoration: none; cursor: pointer;
+      }
+      .cta a.secondary { background: transparent; border: 1px solid rgba(240, 198, 83, .46); color: var(--text); }
+
+      form { display: grid; gap: 10px; padding: 18px; }
+      form input {
+        padding: 14px; border-radius: 14px; border: 1.5px solid var(--hairline);
+        background: var(--fill); color: var(--text);
+        font-size: 24px; font-weight: 800; letter-spacing: 4px; text-align: center; text-transform: uppercase;
+      }
+      [hidden] { display: none !important; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div class="mark" aria-hidden="true">101</div>
+        <div>
+          <h1 id="title">Canlı Masa</h1>
+          <p>101 Skor Tablosu ile tutuluyor</p>
+        </div>
+      </header>
+
+      <form id="join" class="card" hidden>
+        <label for="code" class="message" style="padding: 0">Masayı açan telefondaki kodu yaz</label>
+        <input id="code" name="c" maxlength="7" autocomplete="off" autocapitalize="characters" placeholder="K7M2QX" required>
+        <button type="submit">Masayı izle</button>
+      </form>
+
+      <div id="status" class="status" hidden>
+        <span id="pill" class="pill"></span>
+        <span id="updated" class="updated"></span>
+      </div>
+
+      <section id="leaderboard" class="card" hidden></section>
+      <section id="rounds" class="card" hidden></section>
+      <div id="message" class="card message" hidden></div>
+
+      <section class="card cta">
+        <p>Kendi masanın skorunu sen de tut, kağıt kalem masadan kalksın.</p>
+        <a id="open-app" href="#" hidden>Uygulamada aç</a>
+        <a id="download" class="secondary" href="../indir/">101 Skor Tablosu'nu indir</a>
+      </section>
+    </main>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+      import { getFirestore, doc, onSnapshot, Timestamp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+      // Uygulamadaki constants/firebase.ts ile aynı Web uygulaması. Bu değerler
+      // gizli değildir; erişimi Firestore güvenlik kuralları sınırlar.
+      const firebaseConfig = {
+        apiKey: "AIzaSyDEdUFMEmf3Sq1BUryQdXz5pY3NBerZU8M",
+        authDomain: "skor-tablosu-6ce67.firebaseapp.com",
+        projectId: "skor-tablosu-6ce67",
+        storageBucket: "skor-tablosu-6ce67.firebasestorage.app",
+        messagingSenderId: "902061603301",
+        appId: "1:902061603301:web:974e26d00650f99adc570c",
+      };
+
+      const CODE_PATTERN = /^[ABCDEFGHJKMNPQRSTUVWXYZ23456789]{6}$/;
+      const AVATAR_COLORS = ["#D9534A", "#E07B39", "#C9982A", "#4E9F4A", "#23907F", "#3280C4", "#5563C9", "#8752C4", "#B84882", "#6F6152"];
+
+      const $ = (id) => document.getElementById(id);
+      const escapeHtml = (value) =>
+        String(value).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
+      // Uygulamadaki constants/avatars.ts ile aynı hesap: aynı oyuncu aynı renkte.
+      const defaultAvatarColor = (name) => {
+        let hash = 0;
+        for (const char of name.toLocaleLowerCase("tr-TR")) hash = (hash * 31 + char.codePointAt(0)) >>> 0;
+        return AVATAR_COLORS[hash % AVATAR_COLORS.length];
+      };
+      const initials = (name) =>
+        name.trim().split(/\s+/).slice(0, 2).map((part) => Array.from(part)[0] ?? "").join("").toLocaleUpperCase("tr-TR");
+
+      const avatar = (name, look = {}, size = 36) => {
+        const color = look.color || defaultAvatarColor(name);
+        const content = look.emoji ? escapeHtml(look.emoji) : escapeHtml(initials(name));
+        const fontSize = look.emoji ? size * 0.56 : size * 0.4;
+        return `<span class="avatar" style="width:${size}px;height:${size}px;background:${escapeHtml(color)};font-size:${fontSize}px">${content}</span>`;
+      };
+      const playerAvatar = (data, name, size) => {
+        const members = data.teams?.[name];
+        if (!members) return avatar(name, data.looks?.[name], size);
+        return `<span class="team">${members.slice(0, 2).map((m) => avatar(m, data.looks?.[m], size * 0.8)).join("")}</span>`;
+      };
+
+      const formatAgo = (millis) => {
+        if (!millis) return "";
+        const seconds = Math.max(0, Math.round((Date.now() - millis) / 1000));
+        if (seconds < 10) return "az önce";
+        if (seconds < 60) return `${seconds} sn önce`;
+        const minutes = Math.round(seconds / 60);
+        return minutes < 60 ? `${minutes} dk önce` : `${Math.round(minutes / 60)} sa önce`;
+      };
+
+      const showMessage = (text) => {
+        $("status").hidden = true;
+        $("leaderboard").hidden = true;
+        $("rounds").hidden = true;
+        $("message").hidden = false;
+        $("message").textContent = text;
+      };
+
+      let lastUpdated = null;
+
+      const render = (data) => {
+        $("message").hidden = true;
+        $("status").hidden = false;
+
+        const isLive = data.status === "live";
+        $("pill").className = isLive ? "pill" : "pill done";
+        $("pill").innerHTML = isLive
+          ? `<span class="dot"></span>CANLI · ${data.roundCount}. el`
+          : `Oyun bitti · ${data.roundCount} el`;
+        $("updated").textContent = formatAgo(lastUpdated);
+
+        const totals = data.totalScores || {};
+        const ranked = [...data.playerList].sort((a, b) => (totals[a] ?? 0) - (totals[b] ?? 0));
+        $("leaderboard").hidden = false;
+        $("leaderboard").innerHTML = ranked.map((player, index) => {
+          const penalty = (data.penalties?.[player] || []).reduce((sum, v) => sum + Math.abs(v), 0);
+          const prizes = (data.prizes?.[player] || []).length;
+          const meta = [penalty ? `Ceza +${penalty}` : "", prizes ? `★ ${prizes}` : ""].filter(Boolean).join(" · ");
+          return `<div class="rank${index === 0 ? " leader" : ""}">
+            <span class="pos">${index === 0 ? "👑" : index + 1}</span>
+            ${playerAvatar(data, player, 36)}
+            <span class="name"><strong>${escapeHtml(player)}</strong>${meta ? `<small>${meta}</small>` : ""}</span>
+            <span class="total">${totals[player] ?? 0}</span>
+          </div>`;
+        }).join("");
+
+        $("rounds").hidden = false;
+        if (!data.roundCount) {
+          $("rounds").innerHTML = `<div class="message">Henüz el girilmedi.</div>`;
+          return;
+        }
+        const header = `<tr><th class="round">El</th>${data.playerList.map((p) => `<th>${playerAvatar(data, p, 26)}</th>`).join("")}</tr>`;
+        const rows = Array.from({ length: data.roundCount }, (_, round) => {
+          const cells = data.playerList.map((player) => {
+            const score = data.scores?.[player]?.[round];
+            const tone = score === undefined ? "" : score < 0 ? "win" : score >= 202 ? "bad" : "";
+            return `<td class="${tone}">${score ?? "–"}</td>`;
+          }).join("");
+          return `<tr><td class="round">${round + 1}</td>${cells}</tr>`;
+        }).join("");
+        $("rounds").innerHTML = `<table>${header}${rows}</table>`;
+      };
+
+      const params = new URLSearchParams(location.search);
+      const code = (params.get("c") || "").trim().toUpperCase();
+
+      if (!CODE_PATTERN.test(code)) {
+        $("join").hidden = false;
+      } else {
+        $("title").textContent = `Masa ${code}`;
+        document.title = `Masa ${code} · 101 Skor Tablosu`;
+
+        // Uygulaması olan telefonda masayı uygulamada açma seçeneği.
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+          || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+        if (isMobile) {
+          $("open-app").href = `skortablosu://LiveTable?code=${code}`;
+          $("open-app").hidden = false;
+        }
+
+        if (!firebaseConfig.apiKey) {
+          showMessage("Canlı masa henüz yapılandırılmadı.");
+        } else {
+          const db = getFirestore(initializeApp(firebaseConfig));
+          showMessage("Masaya bağlanılıyor…");
+          onSnapshot(
+            doc(db, "liveTables", code),
+            (snapshot) => {
+              if (!snapshot.exists()) {
+                showMessage("Masa bulunamadı ya da paylaşım durduruldu.");
+                return;
+              }
+              const data = snapshot.data();
+              lastUpdated = data.updatedAt instanceof Timestamp ? data.updatedAt.toMillis() : null;
+              render(data);
+            },
+            () => showMessage("Masaya bağlanılamadı. İnternet bağlantını kontrol et.")
+          );
+          setInterval(() => { $("updated").textContent = formatAgo(lastUpdated); }, 15000);
+        }
+      }
+    </script>
+  </body>
+</html>
