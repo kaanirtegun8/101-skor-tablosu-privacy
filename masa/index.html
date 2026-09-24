@@ -6,23 +6,34 @@
     <meta name="theme-color" content="#04301b">
     <meta name="robots" content="noindex">
     <meta name="description" content="101 Skor Tablosu ile tutulan masanın skorunu canlı izleyin.">
+    <meta property="og:title" content="Masamızı canlı izle · 101 Skor Tablosu">
+    <meta property="og:description" content="Kim önde, kaçıncı eldeyiz? Skor her elde kendiliğinden güncellenir.">
+    <meta property="og:image" content="https://kaanirtegun8.github.io/101-skor-tablosu-privacy/masa/icon.png">
+    <link rel="icon" href="icon.png">
+    <link rel="apple-touch-icon" href="icon.png">
     <title>Canlı Masa · 101 Skor Tablosu</title>
     <style>
       :root {
         color-scheme: dark;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-family: ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         --felt: #04301b;
+        --felt-deep: #021f11;
+        --felt-raised: #0b4a28;
         --gold: #e2c15c;
         --gold-bright: #f3ca52;
-        --gold-soft: rgba(226, 193, 92, 0.16);
+        --gold-soft: rgba(226, 193, 92, 0.14);
+        --gold-line: rgba(226, 193, 92, 0.45);
+        --on-gold: #1e1604;
         --text: #f4f1e8;
         --muted: rgba(244, 241, 232, 0.66);
         --faint: rgba(244, 241, 232, 0.4);
-        --fill: rgba(255, 255, 255, 0.07);
-        --hairline: rgba(255, 255, 255, 0.14);
+        --fill: rgba(255, 255, 255, 0.06);
+        --fill-strong: rgba(255, 255, 255, 0.1);
+        --hairline: rgba(255, 255, 255, 0.12);
         --danger: #ef5b4f;
         --success: #4cc38a;
-        background: var(--felt);
+        --live: #e5483c;
+        background: var(--felt-deep);
         color: var(--text);
       }
 
@@ -31,96 +42,207 @@
       body {
         margin: 0;
         min-height: 100vh;
-        padding: 20px 16px calc(32px + env(safe-area-inset-bottom));
+        padding: max(20px, env(safe-area-inset-top)) 16px calc(36px + env(safe-area-inset-bottom));
         background:
-          radial-gradient(circle at top, rgba(35, 137, 91, 0.34), transparent 45%),
-          var(--felt);
+          radial-gradient(120% 60% at 50% -10%, rgba(52, 168, 107, 0.35), transparent 60%),
+          radial-gradient(80% 50% at 100% 100%, rgba(226, 193, 92, 0.08), transparent 70%),
+          linear-gradient(180deg, var(--felt) 0%, var(--felt-deep) 100%);
+        background-attachment: fixed;
+        -webkit-font-smoothing: antialiased;
       }
 
-      main { width: min(100%, 560px); margin: 0 auto; display: grid; gap: 14px; }
+      main { width: min(100%, 540px); margin: 0 auto; display: grid; gap: 14px; }
 
-      header { display: flex; align-items: center; gap: 12px; }
-      .mark {
-        display: grid; place-items: center; flex: none;
-        width: 44px; height: 44px; border-radius: 13px;
-        background: linear-gradient(145deg, #f5d979, #c99220);
-        color: #073d2a; font-weight: 900; font-size: 16px;
+      /* Başlık */
+      header { display: flex; align-items: center; gap: 12px; padding: 4px 2px 6px; }
+      header img { width: 48px; height: 48px; border-radius: 12px; box-shadow: 0 6px 18px rgba(0, 0, 0, .35); flex: none; }
+      header .heading { flex: 1; min-width: 0; }
+      header h1 { margin: 0; font-size: 20px; font-weight: 800; letter-spacing: .2px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+      header p { margin: 2px 0 0; color: var(--muted); font-size: 13.5px; }
+      .code {
+        font-size: 13px; font-weight: 800; letter-spacing: 2.5px;
+        padding: 3px 9px; border-radius: 8px;
+        background: var(--fill-strong); border: 1px solid var(--hairline); color: var(--gold);
       }
-      header h1 { margin: 0; font-size: 20px; }
-      header p { margin: 2px 0 0; color: var(--muted); font-size: 14px; }
 
-      .status { display: flex; align-items: center; justify-content: space-between; }
+      /* Durum */
+      .status { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 2px; }
       .pill {
-        display: inline-flex; align-items: center; gap: 7px;
-        padding: 6px 12px; border-radius: 999px;
-        background: #d9362b; color: #fff; font-size: 13px; font-weight: 800; letter-spacing: .4px;
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 6px 12px 6px 10px; border-radius: 999px;
+        background: rgba(229, 72, 60, .16); border: 1px solid rgba(229, 72, 60, .5);
+        color: #ffb3ab; font-size: 12.5px; font-weight: 800; letter-spacing: .6px;
       }
-      .pill.done { background: rgba(255, 255, 255, 0.13); }
-      .pill .dot { width: 8px; height: 8px; border-radius: 50%; background: #fff; animation: pulse 1.6s infinite; }
-      @keyframes pulse { 50% { opacity: .35; } }
-      .updated { color: var(--faint); font-size: 13px; }
+      .pill.done { background: var(--gold-soft); border-color: var(--gold-line); color: var(--gold); }
+      .pill .dot { position: relative; width: 8px; height: 8px; border-radius: 50%; background: var(--live); }
+      .pill .dot::after {
+        content: ""; position: absolute; inset: -4px; border-radius: 50%;
+        border: 2px solid var(--live); animation: ping 1.8s ease-out infinite;
+      }
+      @keyframes ping { from { transform: scale(.4); opacity: .9; } to { transform: scale(1.4); opacity: 0; } }
+      .updated { color: var(--faint); font-size: 12.5px; font-variant-numeric: tabular-nums; }
 
       .card {
-        border-radius: 20px; background: var(--fill);
+        border-radius: 22px; background: var(--fill);
         border: 1px solid var(--hairline); overflow: hidden;
+        backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
       }
 
-      .rank { display: flex; align-items: center; gap: 12px; padding: 12px 14px; }
-      .rank.leader { background: var(--gold-soft); }
-      .rank .pos { width: 26px; text-align: center; color: var(--faint); font-weight: 800; }
+      /* Lider */
+      .leader {
+        position: relative; display: flex; align-items: center; gap: 16px; padding: 20px 18px;
+        border-radius: 24px; border: 1px solid var(--gold-line);
+        background:
+          radial-gradient(90% 120% at 0% 0%, rgba(243, 202, 82, 0.22), transparent 60%),
+          linear-gradient(160deg, rgba(11, 74, 40, 0.9), rgba(2, 31, 17, 0.9));
+        box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      }
+      .leader .avatar-wrap { position: relative; flex: none; }
+      .leader .crown {
+        position: absolute; top: -12px; left: 50%; transform: translateX(-50%) rotate(-8deg);
+        width: 26px; height: 26px; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .4));
+      }
+      .leader .who { flex: 1; min-width: 0; }
+      .leader .label { font-size: 11.5px; font-weight: 800; letter-spacing: 1.4px; color: var(--gold); text-transform: uppercase; }
+      .leader .name { margin-top: 3px; font-size: 22px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .leader .gap { margin-top: 3px; font-size: 13.5px; color: var(--muted); }
+      .leader .total {
+        font-size: 44px; font-weight: 900; line-height: 1; letter-spacing: -1px;
+        font-variant-numeric: tabular-nums; color: var(--gold-bright);
+        text-shadow: 0 4px 18px rgba(243, 202, 82, 0.28);
+      }
+
+      /* Diğer oyuncular */
+      .rank { display: flex; align-items: center; gap: 12px; padding: 13px 16px; }
+      .rank + .rank { border-top: 1px solid var(--hairline); }
+      .rank .pos {
+        display: grid; place-items: center; flex: none; width: 24px; height: 24px; border-radius: 8px;
+        background: var(--fill-strong); color: var(--muted); font-size: 12.5px; font-weight: 800;
+      }
       .rank .name { flex: 1; min-width: 0; }
-      .rank .name strong { display: block; font-size: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .rank .name small { color: var(--muted); font-size: 12px; }
-      .rank .total { font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; }
-      .rank.leader .total { color: var(--gold-bright); }
+      .rank .name strong { display: block; font-size: 16.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .rank .score { text-align: right; }
+      .rank .total { display: block; font-size: 21px; font-weight: 800; font-variant-numeric: tabular-nums; }
+      .rank .behind { display: block; font-size: 12px; color: var(--faint); font-variant-numeric: tabular-nums; }
+      .meta { display: flex; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
+      .chip {
+        font-size: 11.5px; font-weight: 800; padding: 2px 7px; border-radius: 999px;
+        font-variant-numeric: tabular-nums;
+      }
+      .chip.penalty { background: rgba(239, 91, 79, 0.16); color: #ff8f86; }
+      .chip.prize { background: var(--gold-soft); color: var(--gold); }
+      .leader .meta { margin-top: 6px; }
 
       .avatar {
         display: inline-grid; place-items: center; flex: none;
         border-radius: 50%; color: #fff; font-weight: 800; overflow: hidden;
+        box-shadow: 0 0 0 2px rgba(2, 31, 17, 0.9);
       }
       .team { display: inline-flex; }
-      .team .avatar + .avatar { margin-left: -10px; box-shadow: 0 0 0 2px rgba(0, 0, 0, .25); }
+      .team .avatar + .avatar { margin-left: -12px; }
 
-      table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
-      th { padding: 10px 4px; border-bottom: 1px solid var(--hairline); }
-      td { padding: 10px 4px; text-align: center; font-size: 17px; font-weight: 700; }
-      tr:nth-child(even) td { background: rgba(255, 255, 255, .035); }
-      td.round, th.round { width: 40px; color: var(--faint); font-size: 13px; font-weight: 800; }
+      /* El el tablo */
+      .section-title {
+        display: flex; align-items: baseline; justify-content: space-between;
+        padding: 14px 16px 6px; font-size: 12px; font-weight: 800; letter-spacing: 1.2px;
+        color: var(--muted); text-transform: uppercase;
+      }
+      .section-title span:last-child { letter-spacing: 0; text-transform: none; font-weight: 600; color: var(--faint); }
+      table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; table-layout: fixed; }
+      th { padding: 8px 4px 10px; vertical-align: top; }
+      th .col { display: grid; justify-items: center; gap: 5px; }
+      th .col small {
+        max-width: 100%; font-size: 11.5px; font-weight: 700; color: var(--muted);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      }
+      td { padding: 9px 4px; text-align: center; font-size: 16px; font-weight: 700; }
+      tbody tr { border-top: 1px solid rgba(255, 255, 255, .06); }
+      tbody tr:last-child td { animation: flash 1.2s ease-out; }
+      @keyframes flash { from { background: rgba(243, 202, 82, .16); } to { background: transparent; } }
+      td.round, th.round { width: 44px; color: var(--faint); font-size: 12.5px; font-weight: 800; }
       td.win { color: var(--success); }
       td.bad { color: var(--danger); }
+      td.empty { color: var(--faint); }
+      tfoot td { border-top: 1px solid var(--hairline); padding: 10px 4px; }
+      tfoot tr.adjust td { font-size: 13.5px; }
+      tfoot tr.sum td { font-size: 18px; font-weight: 900; background: rgba(255, 255, 255, .04); }
+      tfoot tr.sum td.lead { color: var(--gold-bright); }
+      tfoot tr td.round { font-size: 11px; font-weight: 800; letter-spacing: .4px; color: var(--faint); }
 
       .message { padding: 36px 20px; text-align: center; color: var(--muted); line-height: 1.6; }
-
-      .cta { padding: 18px; display: grid; gap: 10px; text-align: center; }
-      .cta p { margin: 0; color: var(--muted); font-size: 14px; }
-      .cta a, form button {
-        display: block; padding: 14px 16px; border-radius: 14px; border: 0;
-        background: var(--gold); color: #12271f; font-weight: 800; font-size: 16px;
-        text-decoration: none; cursor: pointer;
+      .spinner {
+        width: 22px; height: 22px; margin: 0 auto 12px; border-radius: 50%;
+        border: 2.5px solid var(--hairline); border-top-color: var(--gold);
+        animation: spin .8s linear infinite;
       }
-      .cta a.secondary { background: transparent; border: 1px solid rgba(240, 198, 83, .46); color: var(--text); }
+      @keyframes spin { to { transform: rotate(360deg); } }
 
-      form { display: grid; gap: 10px; padding: 18px; }
+      /* Uygulama tanıtımı */
+      .cta { padding: 18px; display: grid; gap: 14px; }
+      .cta .app { display: flex; align-items: center; gap: 12px; }
+      .cta .app img { width: 44px; height: 44px; border-radius: 11px; flex: none; }
+      .cta .app strong { display: block; font-size: 16px; }
+      .cta .app span { display: block; color: var(--muted); font-size: 13px; margin-top: 2px; }
+      .open-app {
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        padding: 14px 16px; border-radius: 14px;
+        background: linear-gradient(180deg, var(--gold-bright), var(--gold)); color: var(--on-gold);
+        font-weight: 800; font-size: 16px; text-decoration: none;
+        box-shadow: 0 8px 22px rgba(226, 193, 92, 0.25);
+      }
+      .stores { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .store {
+        display: flex; align-items: center; gap: 10px; min-width: 0;
+        padding: 10px 12px; border-radius: 14px;
+        background: #000; border: 1px solid rgba(255, 255, 255, 0.22);
+        color: #fff; text-decoration: none;
+        transition: transform .15s ease, border-color .15s ease;
+      }
+      .store:hover { border-color: rgba(255, 255, 255, 0.45); }
+      .store:active { transform: scale(.98); }
+      .store svg { width: 24px; height: 24px; flex: none; }
+      .store span { display: grid; line-height: 1.15; min-width: 0; }
+      .store small { font-size: 10.5px; opacity: .8; white-space: nowrap; }
+      .store b { font-size: 16px; font-weight: 700; white-space: nowrap; }
+      .store.current { border-color: var(--gold-line); box-shadow: 0 0 0 1px var(--gold-line); }
+
+      form { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; padding: 20px 18px; }
+      form input, form button { width: 100%; min-width: 0; }
+      form label { color: var(--muted); text-align: center; font-size: 14.5px; }
       form input {
         padding: 14px; border-radius: 14px; border: 1.5px solid var(--hairline);
-        background: var(--fill); color: var(--text);
-        font-size: 24px; font-weight: 800; letter-spacing: 4px; text-align: center; text-transform: uppercase;
+        background: rgba(0, 0, 0, 0.2); color: var(--text); outline: none;
+        font: inherit; font-size: 26px; font-weight: 800; letter-spacing: 6px; text-align: center; text-transform: uppercase;
       }
+      form input:focus { border-color: var(--gold-line); }
+      form button {
+        padding: 14px 16px; border-radius: 14px; border: 0; cursor: pointer;
+        background: linear-gradient(180deg, var(--gold-bright), var(--gold)); color: var(--on-gold);
+        font: inherit; font-weight: 800; font-size: 16px;
+      }
+
+      footer { text-align: center; color: var(--faint); font-size: 12px; padding-top: 4px; }
+      footer a { color: var(--muted); }
       [hidden] { display: none !important; }
+
+      @media (max-width: 380px) {
+        .leader .total { font-size: 36px; }
+        .stores { grid-template-columns: 1fr; }
+      }
     </style>
   </head>
   <body>
     <main>
       <header>
-        <div class="mark" aria-hidden="true">101</div>
-        <div>
-          <h1 id="title">Canlı Masa</h1>
-          <p>101 Skor Tablosu ile tutuluyor</p>
+        <img src="icon.png" alt="" width="48" height="48">
+        <div class="heading">
+          <h1><span id="title">Canlı Masa</span><span id="code-chip" class="code" hidden></span></h1>
+          <p>101 Skor Tablosu ile canlı tutuluyor</p>
         </div>
       </header>
 
       <form id="join" class="card" hidden>
-        <label for="code" class="message" style="padding: 0">Masayı açan telefondaki kodu yaz</label>
+        <label for="code">Masayı açan telefondaki kodu yaz</label>
         <input id="code" name="c" maxlength="7" autocomplete="off" autocapitalize="characters" placeholder="K7M2QX" required>
         <button type="submit">Masayı izle</button>
       </form>
@@ -130,15 +252,38 @@
         <span id="updated" class="updated"></span>
       </div>
 
-      <section id="leaderboard" class="card" hidden></section>
+      <section id="leader" hidden></section>
+      <section id="others" class="card" hidden></section>
       <section id="rounds" class="card" hidden></section>
       <div id="message" class="card message" hidden></div>
 
       <section class="card cta">
-        <p>Kendi masanın skorunu sen de tut, kağıt kalem masadan kalksın.</p>
-        <a id="open-app" href="#" hidden>Uygulamada aç</a>
-        <a id="download" class="secondary" href="../indir/">101 Skor Tablosu'nu indir</a>
+        <div class="app">
+          <img src="icon.png" alt="" width="44" height="44">
+          <div>
+            <strong>101 Skor Tablosu</strong>
+            <span>Kendi masanın skorunu sen de tut, kağıt kalem masadan kalksın.</span>
+          </div>
+        </div>
+        <a id="open-app" class="open-app" href="#" hidden>Masayı uygulamada aç</a>
+        <div class="stores">
+          <a id="ios-link" class="store" href="https://apps.apple.com/tr/app/id6738851862" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>
+            <span><small>App Store'dan</small><b>İndir</b></span>
+          </a>
+          <a id="android-link" class="store" href="https://play.google.com/store/apps/details?id=com.kaanirtegun8.okeyscoreboard&amp;referrer=utm_source%3Dcanli_masa%26utm_medium%3Dweb%26utm_campaign%3Dlive_table" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="#00d7fe" d="M1.337.924a1.486 1.486 0 0 0-.112.568v21.017c0 .217.045.419.124.6l11.155-11.087L1.337.924z"/>
+              <path fill="#00f076" d="m13.544 10.989 3.258-3.238L3.45.195a1.466 1.466 0 0 0-.946-.179l11.04 10.973z"/>
+              <path fill="#ffc900" d="m22.018 13.298-3.919 2.218-3.515-3.493 3.543-3.521 3.891 2.202a1.49 1.49 0 0 1 0 2.594z"/>
+              <path fill="#ff3a44" d="m13.544 13.056-11 10.933c.298.036.612-.016.906-.183l13.324-7.54-3.23-3.21z"/>
+            </svg>
+            <span><small>Google Play'den</small><b>İndir</b></span>
+          </a>
+        </div>
       </section>
+
+      <footer>Skorlar masayı açan telefondan canlı gelir · <a href="../">101 Skor Tablosu</a></footer>
     </main>
 
     <script type="module">
@@ -158,10 +303,12 @@
 
       const CODE_PATTERN = /^[ABCDEFGHJKMNPQRSTUVWXYZ23456789]{6}$/;
       const AVATAR_COLORS = ["#D9534A", "#E07B39", "#C9982A", "#4E9F4A", "#23907F", "#3280C4", "#5563C9", "#8752C4", "#B84882", "#6F6152"];
+      const CROWN = `<svg class="crown" viewBox="0 0 24 24" aria-hidden="true"><path fill="#F3CA52" stroke="#8a6512" stroke-width=".8" d="M3 7.5l4.5 4 4.5-7 4.5 7 4.5-4-2 11H5l-2-11z"/><circle cx="12" cy="4.2" r="1.3" fill="#F3CA52"/><circle cx="3" cy="7.3" r="1.2" fill="#F3CA52"/><circle cx="21" cy="7.3" r="1.2" fill="#F3CA52"/></svg>`;
 
       const $ = (id) => document.getElementById(id);
       const escapeHtml = (value) =>
         String(value).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+      const sum = (values) => (values || []).reduce((total, value) => total + value, 0);
 
       // Uygulamadaki constants/avatars.ts ile aynı hesap: aynı oyuncu aynı renkte.
       const defaultAvatarColor = (name) => {
@@ -175,7 +322,7 @@
       const avatar = (name, look = {}, size = 36) => {
         const color = look.color || defaultAvatarColor(name);
         const content = look.emoji ? escapeHtml(look.emoji) : escapeHtml(initials(name));
-        const fontSize = look.emoji ? size * 0.56 : size * 0.4;
+        const fontSize = look.emoji ? size * 0.56 : size * 0.38;
         return `<span class="avatar" style="width:${size}px;height:${size}px;background:${escapeHtml(color)};font-size:${fontSize}px">${content}</span>`;
       };
       const playerAvatar = (data, name, size) => {
@@ -187,21 +334,31 @@
       const formatAgo = (millis) => {
         if (!millis) return "";
         const seconds = Math.max(0, Math.round((Date.now() - millis) / 1000));
-        if (seconds < 10) return "az önce";
-        if (seconds < 60) return `${seconds} sn önce`;
+        if (seconds < 10) return "az önce güncellendi";
+        if (seconds < 60) return `${seconds} sn önce güncellendi`;
         const minutes = Math.round(seconds / 60);
-        return minutes < 60 ? `${minutes} dk önce` : `${Math.round(minutes / 60)} sa önce`;
+        return minutes < 60 ? `${minutes} dk önce güncellendi` : `${Math.round(minutes / 60)} sa önce güncellendi`;
+      };
+      const signed = (value) => (value > 0 ? `+${value}` : value < 0 ? `−${Math.abs(value)}` : "0");
+
+      // Oyuncunun ceza ve ödülleri, el skorları dışında kalan kısımdır.
+      const adjustmentChips = (data, player) => {
+        const penalty = sum((data.penalties?.[player] || []).map(Math.abs));
+        const prizes = (data.prizes?.[player] || []).length;
+        return [
+          penalty ? `<span class="chip penalty">Ceza +${penalty}</span>` : "",
+          prizes ? `<span class="chip prize">★ ${prizes} ödül</span>` : "",
+        ].join("");
       };
 
-      const showMessage = (text) => {
-        $("status").hidden = true;
-        $("leaderboard").hidden = true;
-        $("rounds").hidden = true;
+      const showMessage = (text, loading = false) => {
+        for (const id of ["status", "leader", "others", "rounds"]) $(id).hidden = true;
         $("message").hidden = false;
-        $("message").textContent = text;
+        $("message").innerHTML = `${loading ? '<div class="spinner"></div>' : ""}${escapeHtml(text)}`;
       };
 
       let lastUpdated = null;
+      let lastRoundCount = null;
 
       const render = (data) => {
         $("message").hidden = true;
@@ -210,79 +367,124 @@
         const isLive = data.status === "live";
         $("pill").className = isLive ? "pill" : "pill done";
         $("pill").innerHTML = isLive
-          ? `<span class="dot"></span>CANLI · ${data.roundCount}. el`
-          : `Oyun bitti · ${data.roundCount} el`;
+          ? `<span class="dot"></span>CANLI · ${data.roundCount ? `${data.roundCount}. EL` : "OYUN BAŞLADI"}`
+          : `OYUN BİTTİ · ${data.roundCount} EL`;
         $("updated").textContent = formatAgo(lastUpdated);
 
         const totals = data.totalScores || {};
         const ranked = [...data.playerList].sort((a, b) => (totals[a] ?? 0) - (totals[b] ?? 0));
-        $("leaderboard").hidden = false;
-        $("leaderboard").innerHTML = ranked.map((player, index) => {
-          const penalty = (data.penalties?.[player] || []).reduce((sum, v) => sum + Math.abs(v), 0);
-          const prizes = (data.prizes?.[player] || []).length;
-          const meta = [penalty ? `Ceza +${penalty}` : "", prizes ? `★ ${prizes}` : ""].filter(Boolean).join(" · ");
-          return `<div class="rank${index === 0 ? " leader" : ""}">
-            <span class="pos">${index === 0 ? "👑" : index + 1}</span>
-            ${playerAvatar(data, player, 36)}
-            <span class="name"><strong>${escapeHtml(player)}</strong>${meta ? `<small>${meta}</small>` : ""}</span>
-            <span class="total">${totals[player] ?? 0}</span>
+        const [first, ...rest] = ranked;
+        const leadTotal = totals[first] ?? 0;
+        const margin = rest.length ? (totals[rest[0]] ?? 0) - leadTotal : 0;
+
+        $("leader").hidden = false;
+        $("leader").className = "leader";
+        $("leader").innerHTML = `
+          <span class="avatar-wrap">${playerAvatar(data, first, 60)}${CROWN}</span>
+          <span class="who">
+            <span class="label">${isLive ? "Önde" : "Kazanan"}</span>
+            <div class="name">${escapeHtml(first)}</div>
+            <div class="gap">${margin > 0 ? `${margin} puan farkla` : margin === 0 && rest.length ? "Başa baş" : ""}</div>
+            <div class="meta">${adjustmentChips(data, first)}</div>
+          </span>
+          <span class="total">${leadTotal}</span>`;
+
+        $("others").hidden = rest.length === 0;
+        $("others").innerHTML = rest.map((player, index) => {
+          const total = totals[player] ?? 0;
+          const chips = adjustmentChips(data, player);
+          return `<div class="rank">
+            <span class="pos">${index + 2}</span>
+            ${playerAvatar(data, player, 38)}
+            <span class="name"><strong>${escapeHtml(player)}</strong>${chips ? `<span class="meta">${chips}</span>` : ""}</span>
+            <span class="score"><span class="total">${total}</span><span class="behind">+${total - leadTotal}</span></span>
           </div>`;
         }).join("");
 
         $("rounds").hidden = false;
         if (!data.roundCount) {
-          $("rounds").innerHTML = `<div class="message">Henüz el girilmedi.</div>`;
+          $("rounds").innerHTML = `<div class="message">Henüz el girilmedi. İlk el gelince burada görünecek.</div>`;
           return;
         }
-        const header = `<tr><th class="round">El</th>${data.playerList.map((p) => `<th>${playerAvatar(data, p, 26)}</th>`).join("")}</tr>`;
+
+        const header = `<thead><tr><th class="round"></th>${data.playerList.map((p) =>
+          `<th><span class="col">${playerAvatar(data, p, 28)}<small>${escapeHtml(p)}</small></span></th>`).join("")}</tr></thead>`;
         const rows = Array.from({ length: data.roundCount }, (_, round) => {
           const cells = data.playerList.map((player) => {
             const score = data.scores?.[player]?.[round];
-            const tone = score === undefined ? "" : score < 0 ? "win" : score >= 202 ? "bad" : "";
+            const tone = score === undefined ? "empty" : score < 0 ? "win" : score >= 202 ? "bad" : "";
             return `<td class="${tone}">${score ?? "–"}</td>`;
           }).join("");
           return `<tr><td class="round">${round + 1}</td>${cells}</tr>`;
         }).join("");
-        $("rounds").innerHTML = `<table>${header}${rows}</table>`;
+
+        // Toplamdan el skorları çıkınca ceza ve ödüllerin etkisi kalır.
+        const adjustments = data.playerList.map((player) =>
+          (totals[player] ?? 0) - sum(data.scores?.[player]));
+        const adjustRow = adjustments.some(Boolean)
+          ? `<tr class="adjust"><td class="round">±</td>${adjustments.map((value) =>
+              `<td class="${value > 0 ? "bad" : value < 0 ? "win" : "empty"}">${value ? signed(value) : "–"}</td>`).join("")}</tr>`
+          : "";
+        const sumRow = `<tr class="sum"><td class="round">TOP.</td>${data.playerList.map((player) =>
+          `<td class="${player === first ? "lead" : ""}">${totals[player] ?? 0}</td>`).join("")}</tr>`;
+
+        $("rounds").innerHTML = `
+          <div class="section-title"><span>El el skorlar</span><span>${data.roundCount} el</span></div>
+          <table>${header}<tbody>${rows}</tbody><tfoot>${adjustRow}${sumRow}</tfoot></table>`;
+
+        // Yeni el gelince son satır kısaca parlar; ilk açılışta değil.
+        const lastRow = $("rounds").querySelector("tbody tr:last-child");
+        if (lastRow && (lastRoundCount === null || data.roundCount <= lastRoundCount)) {
+          lastRow.querySelectorAll("td").forEach((cell) => { cell.style.animation = "none"; });
+        }
+        lastRoundCount = data.roundCount;
       };
 
+      // Mobilde kullanıcının mağazası öne alınır ve vurgulanır.
+      const userAgent = navigator.userAgent || "";
+      const isAndroid = /Android/i.test(userAgent);
+      const isIOS = /iPhone|iPad|iPod/i.test(userAgent)
+        || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      if (isAndroid) {
+        $("android-link").classList.add("current");
+        $("android-link").parentElement.prepend($("android-link"));
+      } else if (isIOS) {
+        $("ios-link").classList.add("current");
+      }
+
       const params = new URLSearchParams(location.search);
-      const code = (params.get("c") || "").trim().toUpperCase();
+      const code = (params.get("c") || "").trim().toUpperCase().replace(/[\s-]/g, "");
 
       if (!CODE_PATTERN.test(code)) {
         $("join").hidden = false;
       } else {
-        $("title").textContent = `Masa ${code}`;
+        $("title").textContent = "Masa";
+        $("code-chip").textContent = code;
+        $("code-chip").hidden = false;
         document.title = `Masa ${code} · 101 Skor Tablosu`;
 
         // Uygulaması olan telefonda masayı uygulamada açma seçeneği.
-        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
-          || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-        if (isMobile) {
+        if (isIOS || isAndroid) {
           $("open-app").href = `skortablosu://LiveTable?code=${code}`;
           $("open-app").hidden = false;
         }
 
-        if (!firebaseConfig.apiKey) {
-          showMessage("Canlı masa henüz yapılandırılmadı.");
-        } else {
-          const db = getFirestore(initializeApp(firebaseConfig));
-          showMessage("Masaya bağlanılıyor…");
-          onSnapshot(
-            doc(db, "liveTables", code),
-            (snapshot) => {
-              if (!snapshot.exists()) {
-                showMessage("Masa bulunamadı ya da paylaşım durduruldu.");
-                return;
-              }
-              const data = snapshot.data();
-              lastUpdated = data.updatedAt instanceof Timestamp ? data.updatedAt.toMillis() : null;
-              render(data);
-            },
-            () => showMessage("Masaya bağlanılamadı. İnternet bağlantını kontrol et.")
-          );
-          setInterval(() => { $("updated").textContent = formatAgo(lastUpdated); }, 15000);
-        }
+        const db = getFirestore(initializeApp(firebaseConfig));
+        showMessage("Masaya bağlanılıyor…", true);
+        onSnapshot(
+          doc(db, "liveTables", code),
+          (snapshot) => {
+            if (!snapshot.exists()) {
+              showMessage("Masa bulunamadı ya da paylaşım durduruldu.");
+              return;
+            }
+            const data = snapshot.data();
+            lastUpdated = data.updatedAt instanceof Timestamp ? data.updatedAt.toMillis() : null;
+            render(data);
+          },
+          () => showMessage("Masaya bağlanılamadı. İnternet bağlantını kontrol et.")
+        );
+        setInterval(() => { $("updated").textContent = formatAgo(lastUpdated); }, 15000);
       }
     </script>
   </body>
