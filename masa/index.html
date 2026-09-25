@@ -141,14 +141,103 @@
       .team { display: inline-flex; }
       .team .avatar + .avatar { margin-left: -12px; }
 
-      /* El el tablo */
-      .section-title {
-        display: flex; align-items: baseline; justify-content: space-between;
-        padding: 14px 16px 6px; font-size: 12px; font-weight: 800; letter-spacing: 1.2px;
-        color: var(--muted); text-transform: uppercase;
+      /* El el / tablo kartı. Tablo başlığı yapışkan kalsın diye kart
+         overflow: clip kullanır (hidden kaydırma kabı oluşturup sticky'yi bozar). */
+      #rounds { overflow: clip; }
+      button { -webkit-tap-highlight-color: transparent; }
+      .rounds-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px 10px; }
+      .rounds-head .count { font-size: 12.5px; font-weight: 600; color: var(--faint); font-variant-numeric: tabular-nums; }
+      .seg { display: inline-flex; padding: 3px; border-radius: 12px; background: rgba(0, 0, 0, .25); border: 1px solid var(--hairline); }
+      .seg button {
+        border: 0; background: transparent; color: var(--muted); cursor: pointer;
+        font: inherit; font-size: 13.5px; font-weight: 800; padding: 7px 14px; border-radius: 9px;
       }
-      .section-title span:last-child { letter-spacing: 0; text-transform: none; font-weight: 600; color: var(--faint); }
+      .seg button[aria-pressed="true"] { background: var(--fill-strong); color: var(--text); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08); }
+
+      .stepper { display: grid; grid-template-columns: 46px 1fr 46px; align-items: center; gap: 8px; padding: 2px 14px 12px; }
+      .stepper .arrow {
+        display: grid; place-items: center; width: 46px; height: 46px; border-radius: 15px; cursor: pointer;
+        border: 1px solid var(--hairline); background: var(--fill); color: var(--text);
+      }
+      .stepper .arrow:active:not(:disabled) { transform: scale(.94); }
+      .stepper .arrow:disabled { opacity: .28; cursor: default; }
+      .stepper .arrow svg { width: 22px; height: 22px; }
+      .stepper .now { text-align: center; }
+      .stepper .now b { display: block; font-size: 24px; font-weight: 900; letter-spacing: -.3px; }
+      .stepper .now small { display: block; margin-top: 1px; font-size: 12.5px; color: var(--faint); font-variant-numeric: tabular-nums; }
+      .stepper .now small.latest { color: var(--gold); font-weight: 700; }
+
+      .chips {
+        display: flex; gap: 6px; overflow-x: auto; padding: 0 14px 14px;
+        scrollbar-width: none; -webkit-overflow-scrolling: touch;
+      }
+      .chips::-webkit-scrollbar { display: none; }
+      .chips button {
+        position: relative; flex: none; min-width: 38px; height: 34px; padding: 0 9px; cursor: pointer;
+        border-radius: 11px; border: 1px solid var(--hairline); background: transparent; color: var(--muted);
+        font: inherit; font-size: 14px; font-weight: 800; font-variant-numeric: tabular-nums;
+      }
+      .chips button.active { background: var(--gold); border-color: transparent; color: var(--on-gold); }
+      /* Birinin eli bitirdiği eller küçük yeşil noktayla işaretlenir. */
+      .chips button.finished::after {
+        content: ""; position: absolute; top: 4px; right: 4px; width: 5px; height: 5px; border-radius: 50%;
+        background: var(--success);
+      }
+      .chips button.active.finished::after { background: var(--on-gold); }
+
+      .round-list { border-top: 1px solid var(--hairline); touch-action: pan-y; }
+      .round-list.fresh .rrow { animation: flash 1.2s ease-out; }
+      .round-cols, .rrow {
+        display: grid; grid-template-columns: 26px 36px minmax(0, 1fr) 66px 58px;
+        align-items: center; column-gap: 10px; padding: 0 16px;
+      }
+      .round-cols { padding-top: 8px; padding-bottom: 4px; font-size: 10.5px; font-weight: 800; letter-spacing: .4px; color: var(--faint); text-transform: uppercase; }
+      .round-cols span:nth-child(4) { text-align: center; }
+      .round-cols span:nth-child(5) { text-align: right; }
+      .rrow { min-height: 60px; padding-top: 8px; padding-bottom: 8px; }
+      .rrow + .rrow { border-top: 1px solid rgba(255, 255, 255, .06); }
+      .rrow.best { background: linear-gradient(90deg, rgba(76, 195, 138, .1), transparent 70%); }
+      .rrow .pos {
+        display: grid; place-items: center; width: 24px; height: 24px; border-radius: 8px;
+        background: var(--fill-strong); color: var(--muted); font-size: 12.5px; font-weight: 800;
+      }
+      .rrow .pos.first { background: var(--gold-soft); color: var(--gold); }
+      .rrow .who { min-width: 0; }
+      .rrow .who strong { display: block; font-size: 16px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .rrow .who small { display: flex; align-items: center; gap: 6px; margin-top: 2px; font-size: 12px; color: var(--muted); white-space: nowrap; }
+      .move { font-weight: 800; font-variant-numeric: tabular-nums; }
+      .move.up { color: var(--success); }
+      .move.down { color: var(--danger); }
+      .tag { font-weight: 700; }
+      .tag.win { color: var(--success); }
+      .tag.bad { color: #ff8f86; }
+      .delta {
+        justify-self: center; min-width: 62px; padding: 6px 8px; border-radius: 11px; text-align: center;
+        background: var(--fill); font-size: 17px; font-weight: 800; font-variant-numeric: tabular-nums;
+      }
+      .delta.win { background: rgba(76, 195, 138, .16); color: var(--success); }
+      .delta.bad { background: rgba(239, 91, 79, .16); color: #ff8f86; }
+      .delta.empty { color: var(--faint); }
+      .rrow .run { text-align: right; font-size: 16px; font-weight: 800; color: var(--muted); font-variant-numeric: tabular-nums; }
+      .rrow .run.lead { color: var(--gold-bright); }
+      .round-foot {
+        display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+        padding: 10px 16px 14px; border-top: 1px solid rgba(255, 255, 255, .06);
+        font-size: 12px; color: var(--faint);
+      }
+      .round-foot:empty { display: none; }
+      .to-latest {
+        margin-left: auto; padding: 8px 12px; border-radius: 11px; border: 1px solid var(--gold-line); cursor: pointer;
+        background: var(--gold-soft); color: var(--gold); font: inherit; font-size: 13px; font-weight: 800;
+      }
+
+      /* Tüm eller tablosu */
       table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; table-layout: fixed; }
+      thead th {
+        position: sticky; top: 0; z-index: 1;
+        background: rgba(5, 42, 24, .94); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+        border-top: 1px solid var(--hairline); box-shadow: 0 1px 0 var(--hairline);
+      }
       th { padding: 8px 4px 10px; vertical-align: top; }
       th .col { display: grid; justify-items: center; gap: 5px; }
       th .col small {
@@ -156,8 +245,9 @@
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       }
       td { padding: 9px 4px; text-align: center; font-size: 16px; font-weight: 700; }
-      tbody tr { border-top: 1px solid rgba(255, 255, 255, .06); }
-      tbody tr:last-child td { animation: flash 1.2s ease-out; }
+      tbody tr { border-top: 1px solid rgba(255, 255, 255, .06); cursor: pointer; }
+      tbody tr:active td { background: var(--fill); }
+      tbody tr.fresh td { animation: flash 1.2s ease-out; }
       @keyframes flash { from { background: rgba(243, 202, 82, .16); } to { background: transparent; } }
       td.round, th.round { width: 44px; color: var(--faint); font-size: 12.5px; font-weight: 800; }
       td.win { color: var(--success); }
@@ -178,8 +268,26 @@
       @keyframes spin { to { transform: rotate(360deg); } }
 
       /* Uygulama tanıtımı */
-      .cta { padding: 18px; display: grid; gap: 14px; }
-      .cta .app { display: flex; align-items: center; gap: 12px; }
+      /* Uygulama kartı açılıp kapanabilir; varsayılan açık, izleyicinin
+         kapattığı hâl bu tarayıcıda hatırlanır. */
+      .cta summary {
+        display: flex; align-items: center; gap: 12px; padding: 16px 18px;
+        list-style: none; cursor: pointer; -webkit-tap-highlight-color: transparent;
+      }
+      .cta summary::-webkit-details-marker { display: none; }
+      .cta .app { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+      .cta .chevron {
+        display: grid; place-items: center; flex: none; width: 32px; height: 32px; border-radius: 10px;
+        background: var(--fill-strong); color: var(--muted); transition: transform .2s ease;
+      }
+      .cta .chevron svg { width: 18px; height: 18px; }
+      .cta[open] .chevron { transform: rotate(180deg); }
+      .cta-body { display: grid; gap: 12px; padding: 0 18px 18px; animation: reveal .22s ease-out; }
+      @keyframes reveal { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+      @media (prefers-reduced-motion: reduce) {
+        .cta-body { animation: none; }
+        .cta .chevron { transition: none; }
+      }
       .cta .app img { width: 44px; height: 44px; border-radius: 11px; flex: none; }
       .cta .app strong { display: block; font-size: 16px; }
       .cta .app span { display: block; color: var(--muted); font-size: 13px; margin-top: 2px; }
@@ -228,6 +336,9 @@
       @media (max-width: 380px) {
         .leader .total { font-size: 36px; }
         .stores { grid-template-columns: 1fr; }
+        .round-cols, .rrow { grid-template-columns: 24px 32px minmax(0, 1fr) 60px 54px; column-gap: 8px; padding-left: 12px; padding-right: 12px; }
+        .delta { min-width: 56px; font-size: 16px; }
+        .seg button { padding: 7px 11px; }
       }
     </style>
   </head>
@@ -257,31 +368,36 @@
       <section id="rounds" class="card" hidden></section>
       <div id="message" class="card message" hidden></div>
 
-      <section class="card cta">
-        <div class="app">
-          <img src="icon.png" alt="" width="44" height="44">
-          <div>
-            <strong>101 Skor Tablosu</strong>
-            <span>Kendi masanın skorunu sen de tut, kağıt kalem masadan kalksın.</span>
+      <details id="cta" class="card cta" open>
+        <summary>
+          <div class="app">
+            <img src="icon.png" alt="" width="44" height="44">
+            <div>
+              <strong>101 Skor Tablosu</strong>
+              <span>Kendi masanın skorunu sen de tut, kağıt kalem masadan kalksın.</span>
+            </div>
+          </div>
+          <span class="chevron" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/></svg></span>
+        </summary>
+        <div class="cta-body">
+          <a id="open-app" class="open-app" href="#" hidden>Masayı uygulamada aç</a>
+          <div class="stores">
+            <a id="ios-link" class="store" href="https://apps.apple.com/tr/app/id6738851862" rel="noopener">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>
+              <span><small>App Store'dan</small><b>İndir</b></span>
+            </a>
+            <a id="android-link" class="store" href="https://play.google.com/store/apps/details?id=com.kaanirtegun8.okeyscoreboard&amp;referrer=utm_source%3Dcanli_masa%26utm_medium%3Dweb%26utm_campaign%3Dlive_table" rel="noopener">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="#00d7fe" d="M1.337.924a1.486 1.486 0 0 0-.112.568v21.017c0 .217.045.419.124.6l11.155-11.087L1.337.924z"/>
+                <path fill="#00f076" d="m13.544 10.989 3.258-3.238L3.45.195a1.466 1.466 0 0 0-.946-.179l11.04 10.973z"/>
+                <path fill="#ffc900" d="m22.018 13.298-3.919 2.218-3.515-3.493 3.543-3.521 3.891 2.202a1.49 1.49 0 0 1 0 2.594z"/>
+                <path fill="#ff3a44" d="m13.544 13.056-11 10.933c.298.036.612-.016.906-.183l13.324-7.54-3.23-3.21z"/>
+              </svg>
+              <span><small>Google Play'den</small><b>İndir</b></span>
+            </a>
           </div>
         </div>
-        <a id="open-app" class="open-app" href="#" hidden>Masayı uygulamada aç</a>
-        <div class="stores">
-          <a id="ios-link" class="store" href="https://apps.apple.com/tr/app/id6738851862" rel="noopener">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>
-            <span><small>App Store'dan</small><b>İndir</b></span>
-          </a>
-          <a id="android-link" class="store" href="https://play.google.com/store/apps/details?id=com.kaanirtegun8.okeyscoreboard&amp;referrer=utm_source%3Dcanli_masa%26utm_medium%3Dweb%26utm_campaign%3Dlive_table" rel="noopener">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path fill="#00d7fe" d="M1.337.924a1.486 1.486 0 0 0-.112.568v21.017c0 .217.045.419.124.6l11.155-11.087L1.337.924z"/>
-              <path fill="#00f076" d="m13.544 10.989 3.258-3.238L3.45.195a1.466 1.466 0 0 0-.946-.179l11.04 10.973z"/>
-              <path fill="#ffc900" d="m22.018 13.298-3.919 2.218-3.515-3.493 3.543-3.521 3.891 2.202a1.49 1.49 0 0 1 0 2.594z"/>
-              <path fill="#ff3a44" d="m13.544 13.056-11 10.933c.298.036.612-.016.906-.183l13.324-7.54-3.23-3.21z"/>
-            </svg>
-            <span><small>Google Play'den</small><b>İndir</b></span>
-          </a>
-        </div>
-      </section>
+      </details>
 
       <footer>Skorlar masayı açan telefondan canlı gelir · <a href="../">101 Skor Tablosu</a></footer>
     </main>
@@ -357,8 +473,41 @@
         $("message").innerHTML = `${loading ? '<div class="spinner"></div>' : ""}${escapeHtml(text)}`;
       };
 
+      const ARROW_LEFT = `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="M15 5l-7 7 7 7"/></svg>`;
+      const ARROW_RIGHT = `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>`;
+      const VIEW_KEY = "masa-view";
+
       let lastUpdated = null;
       let lastRoundCount = null;
+      let lastData = null;
+      // null: son eli takip et, yeni el gelince ona geç. Sayı: izleyicinin
+      // seçtiği el (0'dan başlar); yeni el gelse de o elde kalır.
+      let selectedRound = null;
+      let view = "rounds";
+      try { if (localStorage.getItem(VIEW_KEY) === "table") view = "table"; } catch {}
+
+      const scoreTone = (score) =>
+        score === undefined ? "empty" : score < 0 ? "win" : score >= 202 ? "bad" : "";
+
+      // Toplamdan el skorları çıkınca ceza ve ödüllerin etkisi kalır.
+      const adjustmentOf = (data, player) =>
+        (data.totalScores?.[player] ?? 0) - sum(data.scores?.[player]);
+
+      // Verilen elin sonundaki sıralama. Ceza ve ödüllerin hangi elde yazıldığı
+      // bilinmediği için eski ellerde yalnızca el skorları toplanır; son elde
+      // (withAdjustments) gerçek toplamlar kullanılır ki üstteki sıralamayla
+      // aynı olsun. Eşitlikte masadaki sıra korunur.
+      const standingsAfter = (data, round, withAdjustments = false) => {
+        const entries = data.playerList.map((player, order) => ({
+          player, order,
+          total: sum((data.scores?.[player] || []).slice(0, round + 1))
+            + (withAdjustments ? adjustmentOf(data, player) : 0),
+        }));
+        const sorted = [...entries].sort((a, b) => a.total - b.total || a.order - b.order);
+        const rank = {};
+        sorted.forEach((entry, index) => { rank[entry.player] = index; });
+        return { sorted, rank };
+      };
 
       const render = (data) => {
         $("message").hidden = true;
@@ -401,44 +550,186 @@
           </div>`;
         }).join("");
 
+        const fresh = lastRoundCount !== null && data.roundCount > lastRoundCount;
+        if (selectedRound !== null && selectedRound >= data.roundCount) selectedRound = null;
+        lastData = data;
+        renderRounds(data, fresh);
+        lastRoundCount = data.roundCount;
+      };
+
+      const renderRounds = (data, fresh = false) => {
         $("rounds").hidden = false;
         if (!data.roundCount) {
           $("rounds").innerHTML = `<div class="message">Henüz el girilmedi. İlk el gelince burada görünecek.</div>`;
           return;
         }
 
+        const head = `<div class="rounds-head">
+          <div class="seg" role="group" aria-label="Görünüm">
+            <button type="button" data-view="rounds" aria-pressed="${view === "rounds"}">El el</button>
+            <button type="button" data-view="table" aria-pressed="${view === "table"}">Tablo</button>
+          </div>
+          <span class="count">${data.roundCount} el</span>
+        </div>`;
+
+        $("rounds").innerHTML = head + (view === "rounds" ? roundView(data, fresh) : tableView(data, fresh));
+
+        // Seçili el düğmesi şeridin ortasına gelsin (sayfa kaymadan).
+        const strip = $("rounds").querySelector(".chips");
+        const active = strip?.querySelector(".active");
+        if (strip && active) {
+          strip.scrollLeft = active.offsetLeft - (strip.clientWidth - active.offsetWidth) / 2;
+        }
+      };
+
+      const roundView = (data, fresh) => {
+        const last = data.roundCount - 1;
+        const round = selectedRound ?? last;
+        const isLast = round === last;
+        const now = standingsAfter(data, round, isLast);
+        // Son elde önceki sıra da ceza/ödüllerle hesaplanır; böylece ok işaretleri
+        // yalnızca bu elin skorlarından doğan yer değişimini gösterir.
+        const before = round > 0 ? standingsAfter(data, round - 1, isLast) : null;
+        const played = data.playerList
+          .map((player) => data.scores?.[player]?.[round])
+          .filter((score) => score !== undefined);
+        const best = played.length > 1 ? Math.min(...played) : null;
+
+        const chips = Array.from({ length: data.roundCount }, (_, index) => {
+          const finished = data.playerList.some((player) => (data.scores?.[player]?.[index] ?? 0) < 0);
+          const classes = [index === round ? "active" : "", finished ? "finished" : ""].join(" ").trim();
+          return `<button type="button" class="${classes}" data-round="${index}" aria-label="${index + 1}. el"${
+            index === round ? ' aria-current="true"' : ""}>${index + 1}</button>`;
+        }).join("");
+
+        const rows = now.sorted.map(({ player, total }, index) => {
+          const score = data.scores?.[player]?.[round];
+          const tone = scoreTone(score);
+          const move = before ? before.rank[player] - index : 0;
+          const tag = score < 0
+            ? `<span class="tag win">Eli bitirdi</span>`
+            : score >= 202 ? `<span class="tag bad">Açamadı</span>`
+            : score === best ? `<span class="tag win">Elin en iyisi</span>` : "";
+          const moveTag = move > 0
+            ? `<span class="move up" aria-label="${move} sıra yükseldi">▲${move}</span>`
+            : move < 0 ? `<span class="move down" aria-label="${-move} sıra düştü">▼${-move}</span>` : "";
+          return `<div class="rrow${score !== undefined && score === best ? " best" : ""}">
+            <span class="pos${index === 0 ? " first" : ""}">${index + 1}</span>
+            ${playerAvatar(data, player, 34)}
+            <span class="who"><strong>${escapeHtml(player)}</strong>${tag || moveTag ? `<small>${moveTag}${tag}</small>` : ""}</span>
+            <span class="delta ${tone}">${score === undefined ? "–" : signed(score)}</span>
+            <span class="run${index === 0 ? " lead" : ""}">${total}</span>
+          </div>`;
+        }).join("");
+
+        const hasAdjustments = data.playerList.some((player) => adjustmentOf(data, player) !== 0);
+        const foot = [
+          hasAdjustments
+            ? `<span>${isLast ? "Toplamlara ceza ve ödüller dahil" : "Bu el sonu toplamlarına ceza ve ödüller dahil değil"}</span>`
+            : "",
+          !isLast ? `<button type="button" class="to-latest" data-round="${last}">Son ele git (${last + 1}) →</button>` : "",
+        ].join("");
+
+        return `
+          <div class="stepper">
+            <button type="button" class="arrow" data-step="-1" aria-label="Önceki el"${round === 0 ? " disabled" : ""}>${ARROW_LEFT}</button>
+            <div class="now" aria-live="polite">
+              <b>${round + 1}. El</b>
+              ${isLast
+                ? `<small class="latest">${data.status === "live" ? "Son el · canlı" : "Son el"}</small>`
+                : `<small>${round + 1} / ${data.roundCount}</small>`}
+            </div>
+            <button type="button" class="arrow" data-step="1" aria-label="Sonraki el"${round === last ? " disabled" : ""}>${ARROW_RIGHT}</button>
+          </div>
+          <div class="chips" role="group" aria-label="El seç">${chips}</div>
+          <div class="round-list${fresh && selectedRound === null ? " fresh" : ""}">
+            <div class="round-cols" aria-hidden="true"><span></span><span></span><span>Oyuncu</span><span>Bu el</span><span>Toplam</span></div>
+            ${rows}
+          </div>
+          <div class="round-foot">${foot}</div>`;
+      };
+
+      const tableView = (data, fresh) => {
+        const totals = data.totalScores || {};
+        const lead = Math.min(...data.playerList.map((player) => totals[player] ?? 0));
+
         const header = `<thead><tr><th class="round"></th>${data.playerList.map((p) =>
           `<th><span class="col">${playerAvatar(data, p, 28)}<small>${escapeHtml(p)}</small></span></th>`).join("")}</tr></thead>`;
         const rows = Array.from({ length: data.roundCount }, (_, round) => {
           const cells = data.playerList.map((player) => {
             const score = data.scores?.[player]?.[round];
-            const tone = score === undefined ? "empty" : score < 0 ? "win" : score >= 202 ? "bad" : "";
-            return `<td class="${tone}">${score ?? "–"}</td>`;
+            return `<td class="${scoreTone(score)}">${score ?? "–"}</td>`;
           }).join("");
-          return `<tr><td class="round">${round + 1}</td>${cells}</tr>`;
+          const isNew = fresh && round === data.roundCount - 1;
+          return `<tr data-round="${round}"${isNew ? ' class="fresh"' : ""} title="${round + 1}. eli ayrıntılı gör"><td class="round">${round + 1}</td>${cells}</tr>`;
         }).join("");
 
-        // Toplamdan el skorları çıkınca ceza ve ödüllerin etkisi kalır.
-        const adjustments = data.playerList.map((player) =>
-          (totals[player] ?? 0) - sum(data.scores?.[player]));
+        const adjustments = data.playerList.map((player) => adjustmentOf(data, player));
         const adjustRow = adjustments.some(Boolean)
           ? `<tr class="adjust"><td class="round">±</td>${adjustments.map((value) =>
               `<td class="${value > 0 ? "bad" : value < 0 ? "win" : "empty"}">${value ? signed(value) : "–"}</td>`).join("")}</tr>`
           : "";
         const sumRow = `<tr class="sum"><td class="round">TOP.</td>${data.playerList.map((player) =>
-          `<td class="${player === first ? "lead" : ""}">${totals[player] ?? 0}</td>`).join("")}</tr>`;
+          `<td class="${(totals[player] ?? 0) === lead ? "lead" : ""}">${totals[player] ?? 0}</td>`).join("")}</tr>`;
 
-        $("rounds").innerHTML = `
-          <div class="section-title"><span>El el skorlar</span><span>${data.roundCount} el</span></div>
-          <table>${header}<tbody>${rows}</tbody><tfoot>${adjustRow}${sumRow}</tfoot></table>`;
-
-        // Yeni el gelince son satır kısaca parlar; ilk açılışta değil.
-        const lastRow = $("rounds").querySelector("tbody tr:last-child");
-        if (lastRow && (lastRoundCount === null || data.roundCount <= lastRoundCount)) {
-          lastRow.querySelectorAll("td").forEach((cell) => { cell.style.animation = "none"; });
-        }
-        lastRoundCount = data.roundCount;
+        return `<table>${header}<tbody>${rows}</tbody><tfoot>${adjustRow}${sumRow}</tfoot></table>`;
       };
+
+      const goToRound = (round) => {
+        if (!lastData) return;
+        const last = lastData.roundCount - 1;
+        const next = Math.max(0, Math.min(last, round));
+        selectedRound = next === last ? null : next;
+        renderRounds(lastData);
+      };
+      const currentRound = () => selectedRound ?? (lastData ? lastData.roundCount - 1 : 0);
+      const setView = (next) => {
+        view = next;
+        try { localStorage.setItem(VIEW_KEY, next); } catch {}
+        if (lastData) renderRounds(lastData);
+      };
+
+      $("rounds").addEventListener("click", (event) => {
+        const target = event.target.closest("[data-view], [data-step], [data-round]");
+        if (!target) return;
+        if (target.dataset.view) setView(target.dataset.view);
+        else if (target.dataset.step) goToRound(currentRound() + Number(target.dataset.step));
+        else if (target.tagName === "TR") {
+          // Tablodaki bir ele dokununca o elin ayrıntısı açılır.
+          view = "rounds";
+          try { localStorage.setItem(VIEW_KEY, view); } catch {}
+          goToRound(Number(target.dataset.round));
+          $("rounds").scrollIntoView({ behavior: "smooth", block: "start" });
+        } else goToRound(Number(target.dataset.round));
+      });
+
+      // El listesinde sola/sağa kaydırınca sonraki/önceki ele geçilir.
+      let touchStart = null;
+      $("rounds").addEventListener("touchstart", (event) => {
+        if (!event.target.closest(".round-list")) { touchStart = null; return; }
+        const touch = event.touches[0];
+        touchStart = { x: touch.clientX, y: touch.clientY };
+      }, { passive: true });
+      $("rounds").addEventListener("touchend", (event) => {
+        if (!touchStart) return;
+        const touch = event.changedTouches[0];
+        const dx = touch.clientX - touchStart.x;
+        const dy = touch.clientY - touchStart.y;
+        touchStart = null;
+        if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) goToRound(currentRound() + (dx < 0 ? 1 : -1));
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (view !== "rounds" || !lastData || event.target.closest?.("input, textarea")) return;
+        if (event.key === "ArrowLeft") goToRound(currentRound() - 1);
+        else if (event.key === "ArrowRight") goToRound(currentRound() + 1);
+      });
+
+      const CTA_KEY = "masa-cta-closed";
+      try { if (localStorage.getItem(CTA_KEY) === "1") $("cta").open = false; } catch {}
+      $("cta").addEventListener("toggle", () => {
+        try { localStorage.setItem(CTA_KEY, $("cta").open ? "0" : "1"); } catch {}
+      });
 
       // Mobilde kullanıcının mağazası öne alınır ve vurgulanır.
       const userAgent = navigator.userAgent || "";
