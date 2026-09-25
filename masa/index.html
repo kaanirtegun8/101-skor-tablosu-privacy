@@ -755,8 +755,25 @@
         document.title = `Masa ${code} · 101 Skor Tablosu`;
 
         // Uygulaması olan telefonda masayı uygulamada açma seçeneği.
+        // Uygulaması olmayan (ya da linki tanımayan eski sürümdeki) kişi hata
+        // görmesin, mağazaya gitsin. Android'de Chrome bunu intent linkindeki
+        // yedek adresle kendisi yapar; iOS'ta uygulama açılmazsa sayfa ön
+        // planda kalır, kısa bir beklemeden sonra App Store açılır.
         if (isIOS || isAndroid) {
-          $("open-app").href = `skortablosu://LiveTable?code=${code}`;
+          const storeUrl = (isAndroid ? $("android-link") : $("ios-link")).href;
+          $("open-app").href = isAndroid
+            ? `intent://LiveTable?code=${code}#Intent;scheme=skortablosu;package=com.kaanirtegun8.okeyscoreboard;S.browser_fallback_url=${encodeURIComponent(storeUrl)};end`
+            : `skortablosu://LiveTable?code=${code}`;
+          if (isIOS) {
+            $("open-app").addEventListener("click", () => {
+              const timer = setTimeout(() => {
+                if (!document.hidden) location.href = storeUrl;
+              }, 1500);
+              const cancel = () => clearTimeout(timer);
+              document.addEventListener("visibilitychange", cancel, { once: true });
+              window.addEventListener("pagehide", cancel, { once: true });
+            });
+          }
           $("open-app").hidden = false;
         }
 
