@@ -51,7 +51,7 @@
         -webkit-font-smoothing: antialiased;
       }
 
-      main { width: min(100%, 540px); margin: 0 auto; display: grid; gap: 14px; }
+      main { width: min(100%, 540px); margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
 
       /* Başlık */
       header { display: flex; align-items: center; gap: 12px; padding: 4px 2px 6px; }
@@ -131,6 +131,7 @@
       }
       .chip.penalty { background: rgba(239, 91, 79, 0.16); color: #ff8f86; }
       .chip.prize { background: var(--gold-soft); color: var(--gold); }
+      .chip.okey { background: var(--fill-strong); color: var(--text); }
       .leader .meta { margin-top: 6px; }
 
       .avatar {
@@ -204,13 +205,14 @@
       .rrow .pos.first { background: var(--gold-soft); color: var(--gold); }
       .rrow .who { min-width: 0; }
       .rrow .who strong { display: block; font-size: 16px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .rrow .who small { display: flex; align-items: center; gap: 6px; margin-top: 2px; font-size: 12px; color: var(--muted); white-space: nowrap; }
+      .rrow .who small { display: flex; flex-wrap: wrap; align-items: center; gap: 0 6px; margin-top: 2px; font-size: 12px; color: var(--muted); white-space: nowrap; }
       .move { font-weight: 800; font-variant-numeric: tabular-nums; }
       .move.up { color: var(--success); }
       .move.down { color: var(--danger); }
       .tag { font-weight: 700; }
       .tag.win { color: var(--success); }
       .tag.bad { color: #ff8f86; }
+      .tag.okey { color: var(--gold); }
       .delta {
         justify-self: center; min-width: 62px; padding: 6px 8px; border-radius: 11px; text-align: center;
         background: var(--fill); font-size: 17px; font-weight: 800; font-variant-numeric: tabular-nums;
@@ -259,6 +261,38 @@
       tfoot tr.sum td.lead { color: var(--gold-bright); }
       tfoot tr td.round { font-size: 11px; font-weight: 800; letter-spacing: .4px; color: var(--faint); }
 
+      /* Özel istatistikler: eli kimin dağıttığına göre skor ve okeyler */
+      .stats .title { flex: 1; min-width: 0; }
+      .stats .title strong { display: block; font-size: 16px; }
+      .stats .title span { display: block; color: var(--muted); font-size: 13px; margin-top: 2px; }
+      .dealers { display: flex; gap: 6px; overflow-x: auto; padding: 0 14px 12px; scrollbar-width: none; }
+      .dealers::-webkit-scrollbar { display: none; }
+      .dealers button {
+        display: flex; align-items: center; gap: 7px; flex: none; padding: 5px 12px 5px 5px; cursor: pointer;
+        border-radius: 999px; border: 1px solid var(--hairline); background: transparent; color: var(--muted);
+        font: inherit; font-size: 13.5px; font-weight: 800;
+      }
+      .dealers button[aria-pressed="true"] { background: var(--gold-soft); border-color: var(--gold-line); color: var(--gold); }
+      .stats-note { margin: 0; padding: 0 16px 12px; font-size: 13px; color: var(--muted); }
+      .stats-note b { color: var(--text); }
+      .stat-cols, .srow {
+        display: grid; grid-template-columns: minmax(0, 1fr) repeat(4, 48px);
+        align-items: center; column-gap: 8px; padding: 0 16px;
+      }
+      .stat-cols {
+        padding-top: 8px; padding-bottom: 4px; border-top: 1px solid var(--hairline);
+        font-size: 10.5px; font-weight: 800; letter-spacing: .4px; color: var(--faint); text-transform: uppercase;
+      }
+      .stat-cols span + span, .srow span + span { text-align: right; }
+      .srow { min-height: 48px; font-size: 16px; font-weight: 800; font-variant-numeric: tabular-nums; }
+      .srow + .srow { border-top: 1px solid rgba(255, 255, 255, .06); }
+      .srow .who { min-width: 0; }
+      .srow .who strong { display: block; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .srow .who small { display: block; font-size: 12px; font-weight: 700; color: var(--gold); }
+      .srow .lead { color: var(--success); }
+      .srow .dim { color: var(--faint); }
+      .stats-foot { padding: 10px 16px 14px; border-top: 1px solid rgba(255, 255, 255, .06); font-size: 12px; color: var(--faint); }
+
       .message { padding: 36px 20px; text-align: center; color: var(--muted); line-height: 1.6; }
       .spinner {
         width: 22px; height: 22px; margin: 0 auto 12px; border-radius: 50%;
@@ -270,23 +304,24 @@
       /* Uygulama tanıtımı */
       /* Uygulama kartı açılıp kapanabilir; varsayılan açık, izleyicinin
          kapattığı hâl bu tarayıcıda hatırlanır. */
-      .cta summary {
+      .cta summary, .stats summary {
         display: flex; align-items: center; gap: 12px; padding: 16px 18px;
         list-style: none; cursor: pointer; -webkit-tap-highlight-color: transparent;
       }
-      .cta summary::-webkit-details-marker { display: none; }
+      .cta summary::-webkit-details-marker, .stats summary::-webkit-details-marker { display: none; }
       .cta .app { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
-      .cta .chevron {
+      .cta .chevron, .stats .chevron {
         display: grid; place-items: center; flex: none; width: 32px; height: 32px; border-radius: 10px;
         background: var(--fill-strong); color: var(--muted); transition: transform .2s ease;
       }
-      .cta .chevron svg { width: 18px; height: 18px; }
-      .cta[open] .chevron { transform: rotate(180deg); }
+      .cta .chevron svg, .stats .chevron svg { width: 18px; height: 18px; }
+      .cta[open] .chevron, .stats[open] .chevron { transform: rotate(180deg); }
       .cta-body { display: grid; gap: 12px; padding: 0 18px 18px; animation: reveal .22s ease-out; }
+      .stats-body { animation: reveal .22s ease-out; }
       @keyframes reveal { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
       @media (prefers-reduced-motion: reduce) {
-        .cta-body { animation: none; }
-        .cta .chevron { transition: none; }
+        .cta-body, .stats-body { animation: none; }
+        .cta .chevron, .stats .chevron { transition: none; }
       }
       .cta .app img { width: 44px; height: 44px; border-radius: 11px; flex: none; }
       .cta .app strong { display: block; font-size: 16px; }
@@ -366,6 +401,16 @@
       <section id="leader" hidden></section>
       <section id="others" class="card" hidden></section>
       <section id="rounds" class="card" hidden></section>
+      <details id="stats" class="card stats" hidden>
+        <summary>
+          <div class="title">
+            <strong>Özel istatistikler</strong>
+            <span>Eli kim dağıtınca ne olmuş?</span>
+          </div>
+          <span class="chevron" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/></svg></span>
+        </summary>
+        <div id="stats-body" class="stats-body"></div>
+      </details>
       <div id="message" class="card message" hidden></div>
 
       <details id="cta" class="card cta" open>
@@ -467,8 +512,20 @@
         ].join("");
       };
 
+      // Masaya okey sayacı bağlandıysa liveOkeys/{kod} dokümanındaki
+      // oyuncu adı → el el okey sayısı (0, 1 ya da 2); bağlı değilse null.
+      let okeys = null;
+      // Eşli oyunda okeyler kişilere yazılır; takımın okeyi üyelerinin toplamıdır.
+      const okeysOf = (data, player, round) =>
+        sum((data.teams?.[player] || [player]).map((member) => {
+          const hands = okeys?.[member] || [];
+          return round === undefined ? sum(hands) : hands[round] ?? 0;
+        }));
+      const okeyChip = (data, player) =>
+        okeys ? `<span class="chip okey">${okeysOf(data, player)} okey</span>` : "";
+
       const showMessage = (text, loading = false) => {
-        for (const id of ["status", "leader", "others", "rounds"]) $(id).hidden = true;
+        for (const id of ["status", "leader", "others", "rounds", "stats"]) $(id).hidden = true;
         $("message").hidden = false;
         $("message").innerHTML = `${loading ? '<div class="spinner"></div>' : ""}${escapeHtml(text)}`;
       };
@@ -534,14 +591,14 @@
             <span class="label">${isLive ? "Önde" : "Kazanan"}</span>
             <div class="name">${escapeHtml(first)}</div>
             <div class="gap">${margin > 0 ? `${margin} puan farkla` : margin === 0 && rest.length ? "Başa baş" : ""}</div>
-            <div class="meta">${adjustmentChips(data, first)}</div>
+            <div class="meta">${adjustmentChips(data, first)}${okeyChip(data, first)}</div>
           </span>
           <span class="total">${leadTotal}</span>`;
 
         $("others").hidden = rest.length === 0;
         $("others").innerHTML = rest.map((player, index) => {
           const total = totals[player] ?? 0;
-          const chips = adjustmentChips(data, player);
+          const chips = adjustmentChips(data, player) + okeyChip(data, player);
           return `<div class="rank">
             <span class="pos">${index + 2}</span>
             ${playerAvatar(data, player, 38)}
@@ -554,8 +611,73 @@
         if (selectedRound !== null && selectedRound >= data.roundCount) selectedRound = null;
         lastData = data;
         renderRounds(data, fresh);
+        renderStats(data);
         lastRoundCount = data.roundCount;
       };
+
+      // Özel istatistikler: seçilen oyuncunun dağıttığı ellerde herkesin skoru ve
+      // okeyleri. Dağıtan, uygulamadaki skor tablosuyla aynı sırayla bulunur
+      // (kesikli çerçeve): r. eli (0'dan) playerList[r % oyuncu sayısı] dağıtır.
+      // Yalnızca okey sayacı bağlı masalarda gösterilir.
+      let statsDealer = 0;
+      const renderStats = (data) => {
+        const visible = Boolean(okeys) && data.roundCount > 0;
+        $("stats").hidden = !visible;
+        if (!visible) return;
+
+        const players = data.playerList;
+        if (statsDealer >= players.length) statsDealer = 0;
+        const dealer = players[statsDealer];
+        const rounds = Array.from({ length: data.roundCount }, (_, round) => round)
+          .filter((round) => round % players.length === statsDealer);
+
+        const picker = players.map((player, index) =>
+          `<button type="button" data-dealer="${index}" aria-pressed="${index === statsDealer}">${
+            playerAvatar(data, player, 24)}<span>${escapeHtml(player)}</span></button>`).join("");
+        const foot = data.status === "live"
+          ? `<div class="stats-foot">Sıradaki eli (${data.roundCount + 1}.) ${escapeHtml(players[data.roundCount % players.length])} dağıtıyor</div>`
+          : "";
+
+        if (!rounds.length) {
+          $("stats-body").innerHTML = `<div class="dealers" role="group" aria-label="Dağıtan">${picker}</div>
+            <div class="message">${escapeHtml(dealer)} henüz el dağıtmadı.</div>${foot}`;
+          return;
+        }
+
+        const stats = players.map((player) => {
+          const played = rounds
+            .map((round) => data.scores?.[player]?.[round])
+            .filter((score) => score !== undefined);
+          return {
+            player,
+            total: sum(played),
+            average: played.length ? Math.round(sum(played) / played.length) : null,
+            finished: played.filter((score) => score < 0).length,
+            okey: sum(rounds.map((round) => okeysOf(data, player, round))),
+          };
+        });
+        const best = Math.min(...stats.map((stat) => stat.total));
+        const rows = stats.map((stat) => `<div class="srow">
+            <span class="who"><strong>${escapeHtml(stat.player)}</strong>${stat.player === dealer ? "<small>Dağıtan</small>" : ""}</span>
+            <span class="${stat.total === best ? "lead" : ""}">${stat.total}</span>
+            <span>${stat.average ?? "–"}</span>
+            <span class="${stat.finished ? "" : "dim"}">${stat.finished}</span>
+            <span class="${stat.okey ? "" : "dim"}">${stat.okey}</span>
+          </div>`).join("");
+
+        $("stats-body").innerHTML = `
+          <div class="dealers" role="group" aria-label="Dağıtan">${picker}</div>
+          <p class="stats-note">${escapeHtml(dealer)} dağıtınca: <b>${rounds.length} el</b> · bu ellerde <b>${
+            sum(stats.map((stat) => stat.okey))} okey</b> geldi</p>
+          <div class="stat-cols" aria-hidden="true"><span>Oyuncu</span><span>Toplam</span><span>Ort.</span><span>Bitti</span><span>Okey</span></div>
+          ${rows}${foot}`;
+      };
+      $("stats-body").addEventListener("click", (event) => {
+        const target = event.target.closest("[data-dealer]");
+        if (!target || !lastData) return;
+        statsDealer = Number(target.dataset.dealer);
+        renderStats(lastData);
+      });
 
       const renderRounds = (data, fresh = false) => {
         $("rounds").hidden = false;
@@ -613,10 +735,12 @@
           const moveTag = move > 0
             ? `<span class="move up" aria-label="${move} sıra yükseldi">▲${move}</span>`
             : move < 0 ? `<span class="move down" aria-label="${-move} sıra düştü">▼${-move}</span>` : "";
+          const okeyCount = okeysOf(data, player, round);
+          const okeyTag = okeyCount ? `<span class="tag okey">${okeyCount > 1 ? `${okeyCount} okey` : "Okey"}</span>` : "";
           return `<div class="rrow${score !== undefined && score === best ? " best" : ""}">
             <span class="pos${index === 0 ? " first" : ""}">${index + 1}</span>
             ${playerAvatar(data, player, 34)}
-            <span class="who"><strong>${escapeHtml(player)}</strong>${tag || moveTag ? `<small>${moveTag}${tag}</small>` : ""}</span>
+            <span class="who"><strong>${escapeHtml(player)}</strong>${tag || moveTag || okeyTag ? `<small>${moveTag}${tag}${okeyTag}</small>` : ""}</span>
             <span class="delta ${tone}">${score === undefined ? "–" : signed(score)}</span>
             <span class="run${index === 0 ? " lead" : ""}">${total}</span>
           </div>`;
@@ -669,10 +793,16 @@
           ? `<tr class="adjust"><td class="round">±</td>${adjustments.map((value) =>
               `<td class="${value > 0 ? "bad" : value < 0 ? "win" : "empty"}">${value ? signed(value) : "–"}</td>`).join("")}</tr>`
           : "";
+        const okeyRow = okeys
+          ? `<tr class="adjust"><td class="round">OKEY</td>${data.playerList.map((player) => {
+              const count = okeysOf(data, player);
+              return `<td class="${count ? "" : "empty"}">${count || "–"}</td>`;
+            }).join("")}</tr>`
+          : "";
         const sumRow = `<tr class="sum"><td class="round">TOP.</td>${data.playerList.map((player) =>
           `<td class="${(totals[player] ?? 0) === lead ? "lead" : ""}">${totals[player] ?? 0}</td>`).join("")}</tr>`;
 
-        return `<table>${header}<tbody>${rows}</tbody><tfoot>${adjustRow}${sumRow}</tfoot></table>`;
+        return `<table>${header}<tbody>${rows}</tbody><tfoot>${okeyRow}${adjustRow}${sumRow}</tfoot></table>`;
       };
 
       const goToRound = (round) => {
@@ -783,6 +913,7 @@
           doc(db, "liveTables", code),
           (snapshot) => {
             if (!snapshot.exists()) {
+              lastData = null;
               showMessage("Masa bulunamadı ya da paylaşım durduruldu.");
               return;
             }
@@ -791,6 +922,15 @@
             render(data);
           },
           () => showMessage("Masaya bağlanılamadı. İnternet bağlantını kontrol et.")
+        );
+        // Okey sayacı bağlı değilse doküman yoktur; masa okeysiz gösterilir.
+        onSnapshot(
+          doc(db, "liveOkeys", code),
+          (snapshot) => {
+            okeys = snapshot.exists() ? snapshot.data().okeys || {} : null;
+            if (lastData) render(lastData);
+          },
+          () => {}
         );
         setInterval(() => { $("updated").textContent = formatAgo(lastUpdated); }, 15000);
       }
